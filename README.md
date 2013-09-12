@@ -1,7 +1,7 @@
-AndroidSimpleCropImageLib
+CropDroid
 =========================
 
-Android crop image library. Forked from https://github.com/biokys/cropimage and remove some warnings.
+Android crop image library. Modified from https://github.com/biokys/cropimage and remove some warnings.
 
 Call this method to run CropImage activity
 ```java
