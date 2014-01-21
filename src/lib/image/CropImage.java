@@ -16,14 +16,14 @@
 
 package lib.image;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 
-import eu.janmuller.android.simplecropimage.R;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -49,6 +49,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+import eu.janmuller.android.simplecropimage.R;
 
 /**
  * The activity can crop specific region of interest from an image.
@@ -58,7 +59,7 @@ public class CropImage extends MonitoredActivity {
 	final int IMAGE_MAX_SIZE = 1024;
 
 	private static final String TAG = "CropImage";
-	public static final String IMAGE_PATH = "image-path";
+	public static final String IMAGE_URI = "Image URI";
 	public static final String SCALE = "scale";
 	public static final String ORIENTATION_IN_DEGREES = "orientation_in_degrees";
 	public static final String ASPECT_X = "aspectX";
@@ -98,6 +99,8 @@ public class CropImage extends MonitoredActivity {
 
 	private final BitmapManager.ThreadSet mDecodingThreads = new BitmapManager.ThreadSet();
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle icicle) {
 
@@ -126,7 +129,7 @@ public class CropImage extends MonitoredActivity {
 				mAspectY = 1;
 			}
 
-			mImagePath = extras.getString(IMAGE_PATH);
+			mImagePath = extras.getString(IMAGE_URI);
 
 			mSaveUri = getImageUri(mImagePath);
 			mBitmap = getBitmap(mImagePath);
@@ -208,14 +211,14 @@ public class CropImage extends MonitoredActivity {
 		startFaceDetection();
 	}
 
-	private Uri getImageUri(String path) {
+	private Uri getImageUri(String uri) {
 
-		return Uri.fromFile(new File(path));
+		return Uri.parse(uri);
 	}
 
-	private Bitmap getBitmap(String path) {
+	private Bitmap getBitmap(String URI) {
 
-		Uri uri = getImageUri(path);
+		Uri uri = getImageUri(URI);
 		InputStream in = null;
 		try {
 			in = mContentResolver.openInputStream(uri);
@@ -244,9 +247,9 @@ public class CropImage extends MonitoredActivity {
 
 			return b;
 		} catch (FileNotFoundException e) {
-			Log.e(TAG, "file " + path + " not found");
+			Log.e(TAG, "file " + URI + " not found");
 		} catch (IOException e) {
-			Log.e(TAG, "file " + path + " not found");
+			Log.e(TAG, "file " + URI + " not found");
 		}
 		return null;
 	}
@@ -438,7 +441,7 @@ public class CropImage extends MonitoredActivity {
 			Bundle extras = new Bundle();
 			Intent intent = new Intent(mSaveUri.toString());
 			intent.putExtras(extras);
-			intent.putExtra(IMAGE_PATH, mImagePath);
+			intent.putExtra(IMAGE_URI, mImagePath);
 			intent.putExtra(ORIENTATION_IN_DEGREES,
 					Util.getOrientationInDegree(this));
 			setResult(RESULT_OK, intent);
